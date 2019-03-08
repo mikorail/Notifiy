@@ -2,6 +2,8 @@ package com.example.notificationapp;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -30,13 +32,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendNotification() {
+        Intent notificationIntent =  new Intent(this,MainActivity.class);
+        PendingIntent notificationPendingIntent = PendingIntent.getActivity(
+                this,NOTIFICATION_ID,notificationIntent,PendingIntent.FLAG_UPDATE_CURRENT
+        );
         NotificationCompat.Builder notifyBuilder=new NotificationCompat.Builder(this)
                 .setContentTitle("Content")
                 .setContentText("Content Text")
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 //how to make it better
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setDefaults(NotificationCompat.DEFAULT_ALL);
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setContentIntent(notificationPendingIntent);
 
         Notification notification= notifyBuilder.build();
         notificationManager.notify(NOTIFICATION_ID,notification);
