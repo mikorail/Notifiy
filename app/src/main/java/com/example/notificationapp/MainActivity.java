@@ -133,7 +133,15 @@ public class MainActivity extends AppCompatActivity {
     private class NotificationReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent) {
-
+            String action=intent.getAction();
+            switch (action){
+                case ACTION_UPDATE_NOTIFICATION:
+                    updateNotification();
+                    break;
+                case ACTION_CANCEL_NOTIFICATION:
+                    cancelNotification();
+                    break;
+            }
         }
     }
 }
