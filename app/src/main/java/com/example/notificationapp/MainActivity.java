@@ -3,7 +3,10 @@ package com.example.notificationapp;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -18,10 +21,14 @@ public class MainActivity extends AppCompatActivity {
     private NotificationManager notificationManager;
     private static final int NOTIFICATION_ID=0;
     private static final String NOTIFICATION_URL="https://www.google.co.id/";
-
+    private static final String ACTION_UPDATE_NOTIFICATION=
+            "com.example.notificationapp.ACTION_UPDATE_NOTIFICATION";
+    private static final String ACTION_CANCEL_NOTIFICATION=
+            "com.example.notificationapp.ACTION_CANCEL_NOTIFICATION";
     private Button notifyButton;
     private Button updateButton;
     private Button cancelButton;
+    private NotificationReceiver receiver = new NotificationReceiver();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +38,12 @@ public class MainActivity extends AppCompatActivity {
         notifyButton=(Button)findViewById(R.id.notify_but);
         updateButton=(Button)findViewById(R.id.update_but);
         cancelButton=(Button)findViewById(R.id.cancel_but);
+
+        IntentFilter intentFilter=new IntentFilter();
+        intentFilter.addAction(ACTION_UPDATE_NOTIFICATION);
+        intentFilter.addAction(ACTION_CANCEL_NOTIFICATION);
+        registerReceiver(receiver,intentFilter);
+
         notifyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -51,7 +64,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    protected  void onDestroy() {
+        unregisterReceiver(receiver);
+        super.onDestroy();
+    }
     private void cancelNotification() {
+        notificationManager.cancel(NOTIFICATION_ID);
 
     }
 
@@ -94,17 +112,28 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent learnPendingIntent=PendingIntent.getActivity(this,
                 NOTIFICATION_ID,learnMoreIntent,PendingIntent.FLAG_ONE_SHOT);
 
+        Intent updateIntent= new Intent(ACTION_UPDATE_NOTIFICATION);
+        PendingIntent updatePendingIntent=PendingIntent.getBroadcast(this,
+                NOTIFICATION_ID,updateIntent,PendingIntent.FLAG_ONE_SHOT);
+
         NotificationCompat.Builder notifyBuilder=new NotificationCompat.Builder(this)
                 .setContentTitle("Content")
                 .setContentText("Content Text")
                 .setSmallIcon(R.mipmap.ic_launcher_round)
                 //how to make it better
                 .addAction(R.mipmap.ic_launcher,"LEARN MORE",learnPendingIntent)
+                .addAction(R.mipmap.ic_launcher,"Update!",updatePendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setContentIntent(notificationPendingIntent);
 
         Notification notification= notifyBuilder.build();
         notificationManager.notify(NOTIFICATION_ID,notification);
+    }
+    private class NotificationReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+        }
     }
 }
